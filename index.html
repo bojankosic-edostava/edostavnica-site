@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="sr-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dostavnica — usluga elektronske dostave</title>
+<meta name="description" content="Dostavnica: elektronska dostava poslovnih dokumenata sa zapisom o predaji, obaveštenju, identifikaciji i preuzimanju, sa vremenskim žigom. Usluga elektronske dostave po ZED-u. Pilot od oktobra 2026.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%235A2D82'/%3E%3Cpath d='M9 17l5 5 9-11' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&family=Zilla+Slab:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #eff2ec;
+    --card: #ffffff;
+    --ink: #1b2437;
+    --muted: #5d6675;
+    --rule: #b7c0b5;
+    --rule-soft: #d9dfd6;
+    --stamp: #5a2d82;
+    --stamp-soft: rgba(90, 45, 130, 0.10);
+    --ok: #1e6b5c;
+    --display: "Zilla Slab", "Iowan Old Style", Georgia, serif;
+    --body: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
+    --max: 1120px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible {
+    outline: 3px solid var(--stamp);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+  .top {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    padding: 28px 0 8px;
+  }
+  .brand { display: flex; align-items: baseline; gap: 12px; text-decoration: none; }
+  .brand-name { font-family: var(--display); font-weight: 700; font-size: 1.6rem; letter-spacing: -0.01em; }
+  .brand-domain { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+  .top-mail { font-family: var(--mono); font-size: 0.9rem; text-decoration: none; border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
+  .top-mail:hover { border-bottom-color: var(--ink); }
+
+  /* Hero */
+  .hero {
+    display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 48px;
+    align-items: start; padding: 56px 0 40px;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 18px;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 600; line-height: 1.08; letter-spacing: -0.015em;
+    font-size: clamp(2.1rem, 4.6vw, 3.4rem); margin: 0 0 22px;
+  }
+  .lede { font-size: 1.12rem; color: var(--ink); margin: 0 0 28px; max-width: 34ch; }
+  .lede strong { font-weight: 600; }
+  .cta {
+    display: inline-block; text-decoration: none; background: var(--ink); color: #fff;
+    font-weight: 600; padding: 13px 20px; border-radius: 3px; font-size: 1rem;
+  }
+  .cta:hover { background: var(--stamp); }
+  .cta-note { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); margin: 14px 0 0; }
+
+  /* Receipt card — the signature element */
+  .receipt {
+    position: relative; background: var(--card); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 0; overflow: hidden;
+    box-shadow: 0 1px 0 rgba(27, 36, 55, 0.04), 0 18px 40px -28px rgba(27, 36, 55, 0.35);
+  }
+  .receipt-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 14px 22px; border-bottom: 1px dashed var(--rule);
+    font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .receipt-head .no { color: var(--muted); letter-spacing: 0.02em; text-transform: none; }
+  .receipt-body { padding: 18px 22px 22px; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin: 0; }
+  .field { margin: 0; }
+  .field dt {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 4px;
+  }
+  .field dd {
+    margin: 0; padding-bottom: 6px; border-bottom: 1px dotted var(--rule);
+    font-size: 0.98rem; line-height: 1.35;
+  }
+  .field dd.mono { font-family: var(--mono); font-size: 0.9rem; }
+  .field.wide { grid-column: 1 / -1; }
+
+  .ledger { margin: 22px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--rule-soft); }
+  .ledger li {
+    display: grid; grid-template-columns: 22px 1fr auto; gap: 12px; align-items: baseline;
+    padding: 9px 0; border-bottom: 1px solid var(--rule-soft); font-size: 0.95rem;
+  }
+  .ledger .tick {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--ok); color: #fff;
+    display: inline-grid; place-items: center; font-size: 0.7rem; font-weight: 700;
+    transform: translateY(2px);
+  }
+  .ledger .when { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+  .ledger .what small { display: block; color: var(--muted); font-size: 0.82rem; margin-top: 1px; }
+
+  .receipt-foot {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    margin-top: 18px; font-family: var(--mono); font-size: 0.8rem; color: var(--muted);
+    line-height: 1.5;
+  }
+  .receipt-foot .hash { word-break: break-all; }
+
+  .stamp {
+    flex: none; margin: 4px 10px 0 0;
+    padding: 8px 14px; border: 3px double var(--stamp); border-radius: 6px;
+    color: var(--stamp); font-family: var(--mono); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.8rem; line-height: 1.3;
+    text-align: center; background: var(--stamp-soft);
+    transform: rotate(-7deg); opacity: 0.92;
+    animation: stamp-in 420ms cubic-bezier(.2,.9,.3,1.2) 250ms both;
+    pointer-events: none;
+  }
+  .stamp b { display: block; font-size: 1.05rem; letter-spacing: 0.18em; }
+  @keyframes stamp-in {
+    from { transform: rotate(-7deg) scale(1.6); opacity: 0; }
+    to   { transform: rotate(-7deg) scale(1); opacity: 0.92; }
+  }
+  .receipt-caption {
+    font-family: var(--mono); font-size: 0.75rem; color: var(--muted);
+    margin: 10px 2px 0; letter-spacing: 0.02em;
+  }
+
+  /* Sections */
+  .cols {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px;
+    padding: 40px 0 16px; border-top: 1px solid var(--rule);
+  }
+  .col h2 { font-family: var(--display); font-weight: 600; font-size: 1.45rem; margin: 0 0 12px; letter-spacing: -0.01em; }
+  .col p { margin: 0 0 12px; color: var(--ink); }
+  .col ul { margin: 0; padding-left: 18px; }
+  .col li { margin: 0 0 6px; }
+  .col li::marker { color: var(--stamp); }
+
+  /* Legal strip */
+  .legal {
+    margin: 40px 0 0; padding: 22px 24px; background: var(--card); border: 1px solid var(--rule);
+    border-left: 5px solid var(--stamp); border-radius: 3px;
+  }
+  .legal p { margin: 0 0 8px; }
+  .legal p:last-child { margin-bottom: 0; }
+  .legal .label { font-family: var(--mono); font-size: 0.9rem; }
+  .legal .small { font-size: 0.92rem; color: var(--muted); }
+
+  footer {
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px;
+    padding: 32px 0 44px; font-family: var(--mono); font-size: 0.82rem; color: var(--muted);
+  }
+  footer a { text-decoration: none; border-bottom: 1px solid var(--rule); }
+  footer a:hover { border-bottom-color: var(--ink); color: var(--ink); }
+
+  @media (max-width: 880px) {
+    .hero { grid-template-columns: 1fr; gap: 32px; padding-top: 36px; }
+    .cols { grid-template-columns: 1fr; gap: 28px; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 16px; }
+    .top { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .fields { grid-template-columns: 1fr; }
+    .ledger li { grid-template-columns: 22px 1fr; }
+    .ledger .when { grid-column: 2; }
+    .receipt-foot { flex-direction: column; align-items: flex-start; }
+    .stamp { margin: 14px 0 0 4px; transform: rotate(-3deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stamp { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap top">
+  <a class="brand" href="/" aria-label="Dostavnica, početna">
+    <span class="brand-name">Dostavnica</span>
+    <span class="brand-domain">edostavnica.rs</span>
+  </a>
+  <a class="top-mail" href="mailto:podrska@edostavnica.rs">podrska@edostavnica.rs</a>
+</header>
+
+<main class="wrap">
+  <section class="hero" aria-labelledby="naslov">
+    <div>
+      <p class="eyebrow">Usluga elektronske dostave · pilot od oktobra 2026.</p>
+      <h1 id="naslov">Pošaljite dokument. Dobijte zapis o tome ko ga je i kada preuzeo.</h1>
+      <p class="lede">
+        Dostavnica isporučuje opomene, obaveštenja, ugovore i račune elektronskim putem
+        i beleži svaki korak: <strong>predaju, obaveštenje primaoca, njegovu identifikaciju i preuzimanje</strong>
+        — svaki sa vremenskim žigom, u paketu koji se proverava i bez nas.
+      </p>
+      <a class="cta" href="mailto:podrska@edostavnica.rs?subject=Pilot%20Dostavnica">Prijavite se za pilot</a>
+      <p class="cta-note">Odgovaramo u toku radnog dana.</p>
+    </div>
+
+    <div>
+      <article class="receipt" aria-label="Primer zapisa o dostavi">
+        <div class="receipt-head">
+          <span>Zapis o dostavi</span>
+          <span class="no">DN-2026-000412</span>
+        </div>
+        <div class="receipt-body">
+          <dl class="fields">
+            <div class="field"><dt>Pošiljalac</dt><dd>Elektro Morava d.o.o.</dd></div>
+            <div class="field"><dt>Primalac</dt><dd>M. P., Niš · e-pošta + SMS</dd></div>
+            <div class="field wide"><dt>Predmet</dt><dd>Opomena pred utuženje, račun 2026-07-1183</dd></div>
+            <div class="field"><dt>Rok za preuzimanje</dt><dd class="mono">11.09.2026. 23:59:59</dd></div>
+            <div class="field"><dt>Identifikacija</dt><dd class="mono">e-pošta + SMS kod + datum rođenja</dd></div>
+          </dl>
+
+          <ol class="ledger" aria-label="Događaji">
+            <li><span class="tick" aria-hidden="true">✓</span><span class="what">Pošiljka predata<small>sadržaj zapečaćen, heš izračunat</small></span><span class="when">27.08.2026. 09:41:07</span></li>
+            <li><span class="tick" aria-hidden="true">✓</span><span class="what">Primalac obavešten<small>e-pošta isporučena, SMS isporučen</small></span><span class="when">27.08.2026. 09:41:12</span></li>
+            <li><span class="tick" aria-hidden="true">✓</span><span class="what">Primalac identifikovan<small>kod potvrđen, uslovi prihvaćeni</small></span><span class="when">27.08.2026. 10:12:48</span></li>
+            <li><span class="tick" aria-hidden="true">✓</span><span class="what">Sadržaj preuzet<small>potvrda o prijemu izdata</small></span><span class="when">27.08.2026. 10:13:05</span></li>
+          </ol>
+
+          <div class="receipt-foot">
+            <div>
+              <div>Vremenski žig RFC 3161 · vreme Europe/Belgrade</div>
+              <div class="hash">sha-256 7f3a91c0…d4e2c91e</div>
+            </div>
+            <div class="stamp" aria-hidden="true">Primljeno<b>27.08.2026.</b>10:13:05</div>
+          </div>
+        </div>
+      </article>
+      <p class="receipt-caption">Primer zapisa. Podaci su izmišljeni.</p>
+    </div>
+  </section>
+
+  <section class="cols" aria-label="O usluzi">
+    <div class="col">
+      <h2>Za koga</h2>
+      <p>Za organizacije koje šalju mnogo dopisa čiji prijem mora da se dokaže:</p>
+      <ul>
+        <li>agencije za naplatu potraživanja</li>
+        <li>osiguravajuća društva</li>
+        <li>telekomunikacioni operatori i komunalna preduzeća</li>
+        <li>advokatske kancelarije</li>
+        <li>upravnici stambenih zajednica</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h2>Šta dobijate</h2>
+      <ul>
+        <li>zapis o predaji, obaveštenju, identifikaciji i preuzimanju — ili o odbijanju i isteku roka</li>
+        <li>vremenski žig na svakom događaju i pečat na celom zapisu</li>
+        <li>paket dokaza koji se proverava samostalno, bez pristupa našem sistemu</li>
+        <li>primalac ne mora da ima nalog: preuzima uz e-poštu, SMS kod i podatak koji ste ugovorili</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h2>Kako počinje</h2>
+      <p>Pilot počinje u oktobru 2026. sa ograničenim brojem klijenata.</p>
+      <ul>
+        <li>slanje iz portala, pojedinačno ili iz CSV tabele</li>
+        <li>API i obaveštenja za povezivanje sa vašim sistemom</li>
+        <li>klauzula o elektronskoj dostavi za vaše ugovore sa primaocima</li>
+      </ul>
+      <p>Pišite na <a href="mailto:podrska@edostavnica.rs">podrska@edostavnica.rs</a>.</p>
+    </div>
+  </section>
+
+  <aside class="legal" aria-label="Pravna napomena">
+    <p class="label">Usluga elektronske dostave — ZED čl. 41 st. 1 t. 3; dokazna snaga zapisa po čl. 57 st. 1 ZED-a.</p>
+  </aside>
+</main>
+
+<footer class="wrap">
+  <span>© 2026 Dostavnica · edostavnica.rs</span>
+  <span><a href="mailto:podrska@edostavnica.rs">podrska@edostavnica.rs</a></span>
+</footer>
+
+</body>
+</html>
